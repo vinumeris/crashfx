@@ -10,8 +10,8 @@ import ninja.AssetsController
 
 public class Routes : ApplicationRoutes {
     override fun init(router: Router) {
-        router.POST().route("/crashfx/upload").with(javaClass<CrashController>(), "crashUpload")
-        router.GET().route("/crashfx/dashboard").with(javaClass<DashboardController>(), "render")
+        router.POST().route("/upload").with(javaClass<CrashController>(), "crashUpload")
+        router.GET().route("/dashboard").with(javaClass<DashboardController>(), "render")
 
         val assets = javaClass<AssetsController>()
         router.GET().route("/{fileName: .*}").with(assets, "serveStatic")

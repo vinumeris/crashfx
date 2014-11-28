@@ -10,9 +10,9 @@
     <!-- Bootstrap core CSS -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/crashboard.css">
+    <link rel="stylesheet" href="css/crashboard.css">
 
-    <script src="/Chart.min.js"></script>
+    <script src="Chart.min.js"></script>
 </head>
 <body>
 

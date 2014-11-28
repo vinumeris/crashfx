@@ -28,4 +28,19 @@ CrashFX.setup("MyApp v1.0", Paths.get("path/to/working/dir"), URI.create("https:
 ```
 
 
+How to run the web app
+----------------------
+
+The web app is based on the [Ninja Framework](http://www.ninjaframework.org), and written in Kotlin. Despite that it
+is all Maven based and has a standalone mode. It is set up for a PostgreSQL backend but the persistence.xml file could
+ be tweaked to use any other database backend supported by Hiberate.
+
+Grab the code, then put your database connection details into the `web/src/main/java/conf/application.conf` file. You
+ should then run `mvn ninja:run` from the web directory which will boot up the app in standalone mode, and generate
+ a random application secret for you in the application.conf file as well. This is used for cookie signing so please
+ don't screw this step up!
+
+Finally you can run `mvn package` to get a WAR in the target directory that can be deployed to any Java app server.
+Or, just use standalone mode.
+
 
