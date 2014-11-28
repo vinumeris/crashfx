@@ -1,17 +1,20 @@
 package com.vinumeris.crashfx;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -48,6 +51,12 @@ public class CrashFX {
     public static Consumer<String> LOGGER = System.err::println;
 
     /**
+     * How many lines taken either from the JDK logging framework or from {@link #recordLogLine(String)} will be stored
+     * in memory and attached to a crash report. Defaults to 1000.
+     */
+    public static int LOG_LINES_TO_REPORT = 1000;
+
+    /**
      * Call this to set the thread uncaught exception handlers to point to CrashFX. Crash reports will NOT be saved
      * or offered for upload in this configuration.
      */
@@ -67,7 +76,7 @@ public class CrashFX {
     public static void setup(String appIdentifier, Path crashReportsDirectory, URI uploadURI) {
         CrashFX.APP_IDENTIFIER = appIdentifier;
         Thread.UncaughtExceptionHandler handler = (thread, throwable) -> {
-            LOGGER.accept("CRASH!: " + getStackTrace(throwable));
+            throwable.printStackTrace();
             CrashWindow.open(throwable);
         };
         Thread.setDefaultUncaughtExceptionHandler(handler);
@@ -79,6 +88,54 @@ public class CrashFX {
                 uploadPendingReports();
             }
         }
+        Logger logger = Logger.getLogger("");
+        logger.addHandler(new Handler() {
+            private final MessageFormat messageFormat = new MessageFormat("{3,date,hh:mm:ss} {0} {1}.{2}: {4}\n{5}");
+
+            @Override
+            public void publish(LogRecord logRecord) {
+                Object[] arguments = new Object[6];
+                arguments[0] = logRecord.getThreadID();
+                String fullClassName = logRecord.getSourceClassName();
+                int lastDot = fullClassName.lastIndexOf('.');
+                String className = fullClassName.substring(lastDot + 1);
+                arguments[1] = className;
+                arguments[2] = logRecord.getSourceMethodName();
+                arguments[3] = new Date(logRecord.getMillis());
+                arguments[4] = logRecord.getMessage();
+                if (logRecord.getThrown() != null) {
+                    Writer result = new StringWriter();
+                    logRecord.getThrown().printStackTrace(new PrintWriter(result));
+                    arguments[5] = result.toString();
+                } else {
+                    arguments[5] = "";
+                }
+                recordLogLine(messageFormat.format(arguments));
+            }
+
+            @Override
+            public void flush() {
+            }
+
+            @Override
+            public void close() throws SecurityException {
+            }
+        });
+    }
+
+    private static LinkedList<String> recentLoggedStrings = new LinkedList<>();
+
+    /** Call this from your logging framework if not using JDK logging, to add strings to the ring buffer */
+    public static void recordLogLine(String line) {
+        recentLoggedStrings.add(line);
+        if (recentLoggedStrings.size() > LOG_LINES_TO_REPORT)
+            recentLoggedStrings.poll();
+    }
+
+    static String getRecentLogs() {
+        StringBuilder builder = new StringBuilder();
+        recentLoggedStrings.forEach(builder::append);
+        return builder.toString();
     }
 
     private static void uploadPendingReports() {

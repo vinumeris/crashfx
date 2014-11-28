@@ -63,7 +63,7 @@ public class CrashWindow {
                     controller.uploadCheckBox.setVisible(false);
                 }
 
-                controller.log = String.format("Crash at %s%n%s%n%s", nowAsString(), CrashFX.APP_IDENTIFIER, sw.toString());
+                controller.log = String.format("Crash at %s%n%s%n%s%n%n%s", nowAsString(), CrashFX.APP_IDENTIFIER, sw.toString(), CrashFX.getRecentLogs());
                 controller.stage = dialogStage;
                 Scene scene = new Scene(root);
                 dialogStage.setScene(scene);
