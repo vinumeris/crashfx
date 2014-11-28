@@ -39,6 +39,10 @@ public class CrashWindow {
     public String log;
     public Stage stage;
 
+    /**
+     * Opens the crash alert for the given throwable and then terminates the app once the user acknowledges. Can be
+     * called from any thread.
+     */
     public static void open(Throwable throwable) {
         // We ensure we are running this code from inside a runLater closure, because otherwise we may encounter an
         // internal error from JavaFX: "Nested event loops are allowed only while handling system events". That

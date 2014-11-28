@@ -82,6 +82,8 @@ public class CrashFX {
         Thread.setDefaultUncaughtExceptionHandler(handler);
         Thread.currentThread().setUncaughtExceptionHandler(handler);
         if (crashReportsDirectory != null) {
+            if (!Files.exists(crashReportsDirectory))
+                uncheck(() -> Files.createDirectory(crashReportsDirectory));
             CrashFX.DIRECTORY = crashReportsDirectory;
             if (uploadURI != null) {
                 CrashFX.UPLOAD_URI = uploadURI;
@@ -127,6 +129,8 @@ public class CrashFX {
 
     /** Call this from your logging framework if not using JDK logging, to add strings to the ring buffer */
     public static void recordLogLine(String line) {
+        if (line == null)
+            return;
         recentLoggedStrings.add(line);
         if (recentLoggedStrings.size() > LOG_LINES_TO_REPORT)
             recentLoggedStrings.poll();
@@ -213,7 +217,8 @@ public class CrashFX {
         public void run() throws Throwable;
     }
 
-    private static <T> T propagate(Throwable throwable) {
+    /** Propagates the given throwable, by wrapping it in RuntimeException if necessary and rethrowing. */
+    public static <T> T propagate(Throwable throwable) {
         if (throwable instanceof RuntimeException)
             throw (RuntimeException) throwable;
         else if (throwable instanceof Error)
