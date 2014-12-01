@@ -27,6 +27,63 @@ Near the start of your application, call
 CrashFX.setup("MyApp v1.0", Paths.get("path/to/working/dir"), URI.create("https://www.example.com/path/to/crashfx/upload");
 ```
 
+This method sets the uncaught exception handler on the calling thread, and the default uncaught exception handler for
+all new threads created after that point. Thus any threads started before this call won't have crashes caught. You can
+set the uncaught exception handler on any previous threads manually: just call CrashWindow.open(throwable) from it.
+
+Any crash that happens will open up a reporting dialog that gives the user the option of uploading a crash report:
+
+![Crash dialog](screenshot-dialog.png)
+
+The first parameter will be used as the User-Agent header when crash reports are submitted, and also included in the
+report. The second parameter will be used to save crash reports to disk. For robustness and speed, when a crash happens
+it's not reported right away. Instead it's stored to disk. The next time your app starts and CrashFX.setup is called
+the reports will be uploaded in the background via HTTP POST to the URI provided in the third parameter.
+
+If all you care about is the crash dialog and not report uploading functionality, use the no-args `CrashFX.setup()`
+call.
+
+And that's it! CrashFX will add a JDK logging handler so that crash reports include the last 1000 lines of log data.
+If you don't use JDK logging then you can do the equivalent operation and use CrashFX.recordLogLine().
+
+The CrashFX class also has a handful of utility methods to make working with Java 8 more pleasant:
+
+* `CrashFX.getStackTrace(throwable)` returns a stack trace as a string.
+* `CrashFX.propagate(throwable)` either rethrows the given exception immediately if it's a subclass of RuntimeException
+  or Error, or wraps it in RuntimeException and rethrows.
+* `CrashFX.unchecked(function)` and `CrashFX.uncheck(function)` take a function that can throw a checked exception and
+  propagates anything thrown as a RuntimeException (see propagate). This simplifies Java syntax considerably when you
+  would prefer to crash than handle an exception. For example, instead of writing:
+
+  ```java
+  try {
+    byte[] bits = Files.readAllBytes(path);
+  } catch (IOException e) {
+    throw new RuntimeException(e);
+  }
+  ```
+
+  you can simply write:
+
+  ```java
+  byte[] bits = unchecked(() -> Files.readAllBytes(path));
+  ```
+
+  When there is no result to return, use `uncheck` instead of `unchecked`.
+* `CrashFX.ignoreAndLog(function)` and `CrashFX.ignoreAndLogged(function)` are a similar pair of functions that simply
+  log the stack trace using the global CrashFX.LOGGER function, which by default prints to stderr. For the
+  `ignoreAndLogged` variant that returns a result, if there's an exception it returns null.
+* `CrashFX.didThrow(function)` simply returns true if an exception was thrown by the given function and false otherwise.
+  This is useful for input validation code.
+
+Finally there's also a method to list files in a directory, that simplifies the java nio Files API for doing the same.
+
+Limitations
+-----------
+
+CrashFX cannot currently report faults that crash the JVM itself.
+
+The analytics web app is rudimentary and requires a database.
 
 How to run the web app
 ----------------------
@@ -43,4 +100,6 @@ Grab the code, then put your database connection details into the `web/src/main/
 Finally you can run `mvn package` to get a WAR in the target directory that can be deployed to any Java app server.
 Or, just use standalone mode.
 
+It looks like this:
 
+![Web screenshot](screenshot-web.jpg)
