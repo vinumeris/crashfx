@@ -23,7 +23,7 @@ How to integrate
 
 Near the start of your application, call
 
-```
+```java
 CrashFX.setup("MyApp v1.0", Paths.get("path/to/working/dir"), URI.create("https://www.example.com/path/to/crashfx/upload");
 ```
 
