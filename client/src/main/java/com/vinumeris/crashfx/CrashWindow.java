@@ -1,37 +1,26 @@
 package com.vinumeris.crashfx;
 
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import sun.awt.CharsetString;
+import javafx.application.*;
+import javafx.event.*;
+import javafx.fxml.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.io.*;
+import java.nio.file.*;
+import java.time.*;
+import java.time.format.*;
 
 /**
  * UI controller for the window that shows up when there's a crash.
  */
 public class CrashWindow {
-    @FXML public  Label messageLabel;
-    @FXML public  Label detailsLabel;
-    @FXML public  VBox imageVBox;
+    @FXML public Label messageLabel;
+    @FXML public Label detailsLabel;
+    @FXML public VBox imageVBox;
     @FXML public VBox contentVBox;
     @FXML public Button actionButton;
     @FXML public CheckBox uploadCheckBox;
@@ -105,9 +94,10 @@ public class CrashWindow {
     public void actionClicked(ActionEvent event) {
         if (!showingDetails) {
             TextArea area = new TextArea(log);
-            area.setPrefHeight(200);
+            //area.setPrefHeight(200);
+            VBox.setVgrow(area, Priority.ALWAYS);
             contentVBox.getChildren().add(area);
-            stage.setHeight(stage.getHeight() + area.getPrefHeight() + contentVBox.getSpacing());
+            stage.setHeight(stage.getHeight() + 200 + contentVBox.getSpacing());
             actionButton.setText("Copy to clipboard");
             showingDetails = true;
         } else {

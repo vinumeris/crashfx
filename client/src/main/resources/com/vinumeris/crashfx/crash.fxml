@@ -28,7 +28,7 @@
                   <Insets bottom="20.0" />
                </padding>
                 </Label>
-            <CheckBox fx:id="uploadCheckBox" alignment="BOTTOM_LEFT" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Upload crash details for investigation" VBox.vgrow="ALWAYS" />
+            <CheckBox fx:id="uploadCheckBox" alignment="BOTTOM_LEFT" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Upload crash details for investigation" />
             </children>
         </VBox>
         <HBox maxHeight="-Infinity" maxWidth="+Infinity" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1">
