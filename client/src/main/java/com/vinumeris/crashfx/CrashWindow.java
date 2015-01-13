@@ -82,7 +82,9 @@ public class CrashWindow {
     public void okClicked(ActionEvent event) {
         if (uploadCheckBox.isSelected()) {
             assert CrashFX.DIRECTORY != null;
-            String filename = String.format("%s.crash.txt", nowAsString().replace("," , ""));
+            // File name is arbitrary. But don't put colons (i.e. formatted timestamps) in the file name! Windows
+            // will barf at such a name.
+            String filename = String.format("%d.crash.txt", Instant.now().getEpochSecond());
             CrashFX.ignoreAndLog(() -> Files.write(CrashFX.DIRECTORY.resolve(filename), log.getBytes()));
         }
         Platform.exit();
@@ -94,7 +96,6 @@ public class CrashWindow {
     public void actionClicked(ActionEvent event) {
         if (!showingDetails) {
             TextArea area = new TextArea(log);
-            //area.setPrefHeight(200);
             VBox.setVgrow(area, Priority.ALWAYS);
             contentVBox.getChildren().add(area);
             stage.setHeight(stage.getHeight() + 200 + contentVBox.getSpacing());
