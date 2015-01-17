@@ -14,7 +14,7 @@
     <url>http://www.ninjaframework.org</url>
 
     <properties>
-        <kotlin.version>0.9.206</kotlin.version>
+        <kotlin.version>0.10.4</kotlin.version>
         <ninja.version>4.0.0</ninja.version>
         <jetty.version>9.2.3.v20140905</jetty.version>
     </properties>
@@ -122,11 +122,6 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <source>src/main/java</source>
-                            </sourceDirs>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>
@@ -134,12 +129,6 @@
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <source>src/test/resources</source>
-                                <source>src/test/java</source>
-                            </sourceDirs>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -21,13 +21,12 @@ open class DashboardController [Inject] (val em: Provider<EntityManager>) {
 
     UnitOfWork
     open fun render(): Result {
-
         val query = em.get().createQuery("SELECT x FROM Crash x ORDER BY x.timestamp DESC", javaClass<Crash>())
         query.setMaxResults(100)
         val crashes = query.getResultList()
 
         // Calc top exception types
-        val ms: Multiset<String> = HashMultiset.create(crashes.map { it.exceptionTypeName }.filterNotNull())
+        val ms: Multiset<String> = HashMultiset.create(crashes.map { it.exceptionTypeName?.trim() }.filterNotNull())
         val tops = Multisets.copyHighestCountFirst(ms).entrySet().map { Pair(it.getCount(), it.getElement()) }
 
         [data] class TopCrash(val count: Int, val type: String, val color: String, val colorHighlight: String)
