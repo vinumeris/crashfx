@@ -35,7 +35,7 @@ open class DashboardController [Inject] (val em: Provider<EntityManager>) {
         var color = Color.CORNFLOWERBLUE;
         for (top in tops) {
             val lightColor = color.brighter();
-            renderObjs.add(TopCrash(top.first, top.second, colorToWeb(color), colorToWeb(lightColor)))
+            renderObjs.add(TopCrash(top.first, top.second.trim(), colorToWeb(color), colorToWeb(lightColor)))
             color = color.desaturate();
         }
         return Results.html().template("views/dashboard.html.ftl").render(mapOf("crashes" to crashes, "tops" to renderObjs))

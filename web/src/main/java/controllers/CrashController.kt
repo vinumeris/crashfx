@@ -7,11 +7,8 @@ import ninja.Result
 import ninja.Results
 import models.Crash
 import javax.inject.Inject
-import ninja.Router
 import com.google.inject.Provider
 import javax.persistence.EntityManager
-import java.sql.Timestamp
-import java.time.Instant
 
 Singleton
 public open class CrashController [Inject] (open val em: Provider<EntityManager>) {
@@ -41,10 +38,10 @@ public open class CrashController [Inject] (open val em: Provider<EntityManager>
         if (!log.startsWith("Crash at"))
             return null
         val lines = log.split("\n")
-        if (lines.size < 3)
+        if (lines.size() < 3)
             return null
         val firstExLine = lines[2]
-        val typeName = firstExLine.split(':')[0]
+        val typeName = firstExLine.split(':')[0].trim()
         val appID = lines[1]
         return ExtractedData(typeName, appID)
     }
