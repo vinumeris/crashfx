@@ -12,8 +12,11 @@ import com.google.common.collect.Multiset
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.Multisets
 import javafx.scene.paint.Color
+import ninja.FilterWith
+import ninja.BasicAuthFilter
 
 Singleton
+FilterWith(javaClass<BasicAuthFilter>())
 open class DashboardController [Inject] (val em: Provider<EntityManager>) {
     fun colorToWeb(color: Color): String {
         return "#%x%x%x".format((color.getRed()*255).toInt(), (color.getGreen()*255).toInt(), (color.getBlue()*255).toInt())
