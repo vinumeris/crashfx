@@ -9,7 +9,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
-import java.io.*;
 import java.nio.file.*;
 import java.time.*;
 import java.time.format.*;
@@ -44,19 +43,15 @@ public class CrashWindow {
                 Pane root = loader.load();
                 CrashWindow controller = loader.getController();
 
-                // Unwrap all the nested exceptions.
-                StringWriter sw = new StringWriter();
-                Throwable rootCause = throwable;
-                if (CrashFX.UNWRAP_EXCEPTIONS)
-                    while (rootCause.getCause() != null) rootCause = rootCause.getCause();
-                rootCause.printStackTrace(new PrintWriter(sw));
+                String stackTrace = CrashFX.getStackTrace(throwable);
+                CrashFX.LOGGER.accept(stackTrace);
 
                 if (CrashFX.UPLOAD_URI == null) {
                     controller.uploadCheckBox.setSelected(false);
                     controller.uploadCheckBox.setVisible(false);
                 }
 
-                controller.log = String.format("Crash at %s%n%s%n%s%n%n%s", nowAsString(), CrashFX.APP_IDENTIFIER, sw.toString(), CrashFX.getRecentLogs());
+                controller.log = String.format("Crash at %s%n%s%n%s%n%n%s", nowAsString(), CrashFX.APP_IDENTIFIER, stackTrace, CrashFX.getRecentLogs());
                 controller.stage = dialogStage;
                 Scene scene = new Scene(root);
                 dialogStage.setScene(scene);

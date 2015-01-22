@@ -1,21 +1,13 @@
 package com.vinumeris.crashfx;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+import java.net.*;
+import java.nio.file.*;
+import java.text.*;
+import java.util.*;
+import java.util.function.*;
+import java.util.logging.*;
+import java.util.stream.*;
 
 /**
  * CrashFX provides utility methods to set up crash handling in your application.
@@ -76,7 +68,6 @@ public class CrashFX {
     public static void setup(String appIdentifier, Path crashReportsDirectory, URI uploadURI) {
         CrashFX.APP_IDENTIFIER = appIdentifier;
         Thread.UncaughtExceptionHandler handler = (thread, throwable) -> {
-            throwable.printStackTrace();
             CrashWindow.open(throwable);
         };
         Thread.setDefaultUncaughtExceptionHandler(handler);
