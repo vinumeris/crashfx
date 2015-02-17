@@ -14,11 +14,8 @@ Singleton
 public open class CrashController [Inject] (open val em: Provider<EntityManager>) {
     Transactional
     public open fun crashUpload(context: Context): Result {
-        context.getInputStream().use {
-            val buffer = ByteArray(1024*1024);   // 1mb upload buffer
-            val size = it.read(buffer)
-            val str = String(buffer, 0, size, Charsets.UTF_8)
-            saveLog(str)
+        context.getInputStream().reader().use {
+            saveLog(it.readText())
         }
         return Results.noContent()
     }
