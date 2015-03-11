@@ -92,10 +92,20 @@ The web app is based on the [Ninja Framework](http://www.ninjaframework.org), an
 is all Maven based and has a standalone mode. It is set up for a PostgreSQL backend but the persistence.xml file could
  be tweaked to use any other database backend supported by Hiberate.
 
-Grab the code, then put your database connection details into the `web/src/main/java/conf/application.conf` file. You
- should then run `mvn ninja:run` from the web directory which will boot up the app in standalone mode, and generate
+Grab the code, then put your database connection details into the `web/src/main/java/conf/application.conf` file. The `dashboardPassword` setting must also be changed to a proper password. Note that the default dashboard username is `admin`. You
+ should then run `mvn clean compile ninja:run` from the web directory which will boot up the app in standalone mode, and generate
  a random application secret for you in the application.conf file as well. This is used for cookie signing so please
  don't screw this step up!
+ 
+The above steps will launch Ninja in SuperDevMode (using `dev.*` settings from `application.conf`), ideal for debugging. If you want to deploy the standalone web app in production mode (and apply `prod.*` settings from `application.conf`), do as follows:
+
+1. Set `ninja.mode` to `prod` in `pom.xml`;
+
+2. Run `mvn clean compile assembly:single` in the web directory. This will produce a standalone `crashfx-web-X.X-jar-with-dependencies.jar` jar in the `target` subdirectory, with all dependencies packaged.
+
+3. Launch the standalone web app as a background nohuped daemon: `nohup java -Dninja.port=9000 -jar crashfx-web-X.X-jar-with-dependencies.jar > crashfx-web.log 2>&1 &`
+
+4. For custom Ninja settings and proper setup of the app as a system service, see the [Ninja standalone](http://www.ninjaframework.org/documentation/deployment/ninja_standalone.html) reference.
 
 Finally you can run `mvn package` to get a WAR in the target directory that can be deployed to any Java app server.
 Or, just use standalone mode.
