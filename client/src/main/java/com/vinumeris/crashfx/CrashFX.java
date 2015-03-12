@@ -141,7 +141,7 @@ public class CrashFX {
             public void run() {
                 for (Path path : listDir(DIRECTORY)) {
                     if (!path.toString().endsWith(".crash.txt") || !attemptReportUpload(path))
-                        break;
+                        continue;
                     uncheck(() -> Files.delete(path));
                 }
             }
