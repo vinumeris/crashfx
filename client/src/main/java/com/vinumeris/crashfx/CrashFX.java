@@ -152,7 +152,11 @@ public class CrashFX {
 
     private static boolean attemptReportUpload(Path path) {
         try {
-            HttpURLConnection conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+            HttpURLConnection conn;
+            if (UPLOAD_URI.getScheme().equals("https")) {
+                conn = (HttpsURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+                ((HttpsURLConnection) conn).setHostnameVerifier((s, sslSession) -> true);
+            } else conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
             conn.addRequestProperty("User-Agent", APP_IDENTIFIER);
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
