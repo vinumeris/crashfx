@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.logging.*;
 import java.util.stream.*;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * CrashFX provides utility methods to set up crash handling in your application.
