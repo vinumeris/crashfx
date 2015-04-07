@@ -2,6 +2,7 @@ package com.vinumeris.crashfx;
 
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.*;
 import java.nio.file.*;
 import java.text.*;
 import java.util.*;
@@ -29,6 +30,16 @@ public class CrashFX {
      * Should be an HTTP[S] URL where crash reports will be POSTd to at startup. If null, upload will not be available.
      */
     public static URI UPLOAD_URI = null;
+
+    /**
+     * Optional custom SSLSocketFactory to be used for the HTTPS connection. Leave null, for default SSLSocketFactory.
+     */
+    public static SSLSocketFactory SSL_SOCKET_FACTORY = null;
+
+    /**
+     * Optional custom HostnameVerifier to be used for the HTTPS connection. Leave null, for default HostnameVerifier.
+     */
+    public static HostnameVerifier SSL_HOSTNAME_VERIFIER = null;
 
     /**
      * If true, then you will not get clipped exceptions (caused by ....) but rather, a single stack trace with the
@@ -67,9 +78,7 @@ public class CrashFX {
      */
     public static void setup(String appIdentifier, Path crashReportsDirectory, URI uploadURI) {
         CrashFX.APP_IDENTIFIER = appIdentifier;
-        Thread.UncaughtExceptionHandler handler = (thread, throwable) -> {
-            CrashWindow.open(throwable);
-        };
+        Thread.UncaughtExceptionHandler handler = (thread, throwable) -> CrashWindow.open(throwable);
         Thread.setDefaultUncaughtExceptionHandler(handler);
         Thread.currentThread().setUncaughtExceptionHandler(handler);
         if (crashReportsDirectory != null) {
@@ -116,6 +125,27 @@ public class CrashFX {
         });
     }
 
+    /**
+     * Call this to set the thread uncaught exception handlers to point to CrashFX. This setup method also allows you
+     * to specify additional SSL options.
+     * @param appIdentifier This string will be assigned to {@link com.vinumeris.crashfx.CrashFX#APP_IDENTIFIER},
+     *                      and will be put at the top of any crash reports and in the upload HTTP user agent field, so
+     *                      include your app version here at least.
+     * @param crashReportsDirectory Where to save crash report files to . If any crash reports are found there that
+     *                              were not uploaded yet, this method will trigger background upload for them.
+     * @param uploadURI URI where crash reports will be uploaded; successfully uploaded reports are deleted from disk.
+     * @param sslSocketFactory Custom SSLSocketFactory to be used for the HTTPS connection (e.g.: for implementing
+     *                         mutual authentication).
+     * @param hostnameVerifier Custom HostnameVerifier to be used for the HTTPS connection (e.g.: for allowing
+     *                         self-signed server certificates).
+     */
+    public static void setup(String appIdentifier, Path crashReportsDirectory, URI uploadURI,
+                             SSLSocketFactory sslSocketFactory, HostnameVerifier hostnameVerifier) {
+        CrashFX.SSL_SOCKET_FACTORY = sslSocketFactory;
+        CrashFX.SSL_HOSTNAME_VERIFIER = hostnameVerifier;
+        setup(appIdentifier, crashReportsDirectory, uploadURI);
+    }
+
     private static LinkedList<String> recentLoggedStrings = new LinkedList<>();
 
     /** Call this from your logging framework if not using JDK logging, to add strings to the ring buffer */
@@ -152,7 +182,12 @@ public class CrashFX {
 
     private static boolean attemptReportUpload(Path path) {
         try {
-            HttpURLConnection conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+            HttpURLConnection conn;
+            if (UPLOAD_URI.getScheme().equals("https")) {
+                conn = (HttpsURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+                if (SSL_SOCKET_FACTORY != null) ((HttpsURLConnection) conn).setSSLSocketFactory(SSL_SOCKET_FACTORY);
+                if (SSL_HOSTNAME_VERIFIER != null) ((HttpsURLConnection) conn).setHostnameVerifier(SSL_HOSTNAME_VERIFIER);
+            } else conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
             conn.addRequestProperty("User-Agent", APP_IDENTIFIER);
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
