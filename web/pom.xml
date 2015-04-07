@@ -14,8 +14,8 @@
     <url>http://www.ninjaframework.org</url>
 
     <properties>
-        <kotlin.version>0.10.195</kotlin.version>
-        <ninja.version>4.0.0</ninja.version>
+        <kotlin.version>0.11.91.1</kotlin.version>
+        <ninja.version>5.1.0</ninja.version>
         <jetty.version>9.2.3.v20140905</jetty.version>
     </properties>
     <build>
