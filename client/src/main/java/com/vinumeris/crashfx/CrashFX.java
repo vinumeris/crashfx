@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.logging.*;
 import java.util.stream.*;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * CrashFX provides utility methods to set up crash handling in your application.
@@ -152,7 +153,11 @@ public class CrashFX {
 
     private static boolean attemptReportUpload(Path path) {
         try {
-            HttpURLConnection conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+            HttpURLConnection conn;
+            if (UPLOAD_URI.getScheme().equals("https")) {
+                conn = (HttpsURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
+                ((HttpsURLConnection) conn).setHostnameVerifier((s, sslSession) -> true);
+            } else conn = (HttpURLConnection) unchecked(() -> UPLOAD_URI.toURL().openConnection());
             conn.addRequestProperty("User-Agent", APP_IDENTIFIER);
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
